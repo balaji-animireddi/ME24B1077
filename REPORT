@@ -1,0 +1,115 @@
+Smart Irrigation System 
+//Question 9
+//me24b1077
+//balaji animireddi
+What Problem Are You Solving?
+The Smart Irrigation System is designed to efficiently manage and monitor irrigation resources in a simulated environment. The program addresses key operational aspects:
+- Handling water stream requests during critical conditions like droughts.
+- Recording water usage logs, while archiving old data to save space.
+- Detecting and managing leaky irrigation components.
+- Handling high-priority fixes in a recurring, cyclical manner.
+Objectives
+- Process irrigation requests in priority order.
+- Maintain a bounded log of water usage with automatic archival.
+- Identify and track faulty components in the system.
+- Efficiently manage urgent maintenance using a cyclical inspection model.
+
+Design Explanation
+Why These Specific Data Structures?
+Data Structure
+Use Case
+Justification
+
+Queue
+Storing water stream requests
+Ensures First-In-First-Out processing of irrigation requests.
+
+Stack
+Handling water requests by priority
+Last-In-First-Out processing for emergency responses.
+
+Fixed Array Buffer
+Water usage log
+Simulates a circular buffer, overwriting old logs when full.
+
+Singly Linked List
+Track initial leaky components
+Simple, sequential tracking of faulty components.
+
+Doubly Linked List
+Maintain moved leaky components
+Allows forward and backward traversal during repairs.
+
+Circular Linked List
+Priority fixes that recur
+Enables infinite looping through critical parts for inspection.
+
+How They Help
+
+- Provide modular and efficient handling for each irrigation subsystem.
+- Reduce complexity by separating logging, tracking, and urgent repair mechanisms.
+- Mimic real-world systems such as rotating maintenance schedules and alert prioritization.
+
+Logic of the Code
+
+Case 1: Water Request System
+- Takes drought alert inputs and enqueues them.
+- Transfers them from queue to stack (reverse order).
+- Pops stack to simulate processing from most recent to oldest.
+
+Case 2: Water Usage Log
+- Takes x usage entries and log size n.
+- If buffer is full, oldest usage is archived.
+- Logs are shifted and updated in a fixed-size buffer.
+
+Case 3: Leaky Component Tracker
+- User enters possible leaky components.
+- Matches against known stream names and inserts into a singly linked list.
+- Allows transferring one leaky component to a doubly linked list for repair.
+- Displays the doubly linked list forward and backward.
+
+Case 4: Priority Fixes
+- Takes two priority streams and adds them to a circular linked list.
+- Traverses the circular list two full cycles to simulate recurring checks.
+
+Variables and Functions Used
+
+Key Global Variables:
+- queue[max_][size], stack[max_][size] – For queue and stack operations.
+- waterusage[size][max_] – Stores water usage logs.
+- name1[20][max_] – Stores original stream names.
+
+Functions and Purpose:
+
+Function
+Purpose
+
+enqueue()
+Adds a stream to the queue.
+
+dequeue()
+Removes the front stream from the queue.
+
+push()
+Pushes a request to the stack (LIFO).
+
+pop()
+Pops a request from the stack.
+
+waterusage_()
+Handles water usage logging and archiving.
+
+insert()
+Adds matching leaky components to a singly linked list.
+
+delete_()
+Transfers a component to a doubly linked list.
+
+traverse()
+Traverses and prints doubly linked list forward and backward.
+
+circular()
+Inserts nodes into a circular linked list.
+
+ctraverse()
+Traverses circular list two times.
