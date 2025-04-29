@@ -1,0 +1,418 @@
+#include <stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define max_ 6
+#define size 30
+
+// Linked list for leaky components
+struct node
+{
+    char name[20];
+    struct node* nxt;
+};
+
+// Doubly linked list for leaky components
+struct str
+{
+    char name[20];
+    struct str* next;
+    struct str* prev;
+};
+
+// Circular linked list for priority fixes
+struct cstr
+{
+    char name[20];
+    struct cstr* ptr;
+};
+
+int top=-1;
+int front=-1,rear=-1;
+
+// declaring data structures
+char queue[size][max_];
+char stack[size][max_];
+char waterusage[size][max_];
+char name1[20][max_]; // to store stream names temporarily
+
+// function to add element to queue
+void enqueue(char name[max_])
+{
+    if (rear == max_ - 1)
+    {
+        printf("Queue is full\n");
+        return;
+    }
+
+    if (front == -1)
+    {
+        front = 0;
+    }
+
+    rear++;
+    strncpy(queue[rear], name, max_ - 1);
+    queue[rear][max_ - 1] = '\0'; // null terminate string
+}
+
+// function to remove element
+char* dequeue()
+{
+    if (front == -1)
+    {
+        printf("Queue is empty\n");
+        return NULL;
+    }
+
+    return queue[front++];
+    
+}
+
+// push request name to stack
+void push(char name[30])
+{
+    if(top==max_-1)
+    {
+        printf("Stack is full\n");
+    }
+    else
+    {
+        top++;
+        strcpy(stack[top],name);
+    }
+}
+
+// pop top request from stack
+void pop()
+{
+    if(top==-1)
+    {
+        printf("no element is present\n");
+    }
+    else
+    {
+        printf("%s\n",stack[top]);
+        top--;
+    }
+}
+
+// handle water usage log, simulate to archieve the oldest task
+void waterusage_(char name[20][max_],int i,int n)
+{
+    char k[20];
+    int x=0;
+    if(i>n-1)
+    {
+        strcpy(k,waterusage[0]);
+        for(int j=1;j<n;j++)
+        {
+            strcpy(waterusage[j-1],waterusage[j]);//left shifting and sending old water usage log
+            x=j;
+        }
+        strcpy(waterusage[x],name[i]);
+        printf("Archieved task: %s\n",k);
+    }
+    else
+    {
+        strcpy(waterusage[i],name[i]);
+         
+    }
+}
+
+// insert leaky components into a linked list
+void insert(struct node** head)
+{   
+    char k[20],x[20];
+    int flag=0;
+    printf("Enter components which are leaking:\n");
+    scanf("%s %s",k,x);
+    for(int i=0;i<max_;i++)
+    {
+        if(strcmp(name1[i],k)==0||strcmp(name1[i],x)==0)//for finding leaky components
+        {
+            struct node* new_;
+            new_=(struct node*)malloc(sizeof(struct node));
+            strcpy(new_->name,name1[i]);
+            new_->nxt=NULL;
+            struct node* temp=*head;
+            if(*head==NULL)
+            {
+                *head=new_;
+            }
+            else
+            {
+                while(temp->nxt!=NULL)
+                {
+                    temp=temp->nxt;
+                }
+                temp->nxt=new_;
+            }
+            flag++;
+        }
+    }
+    if(flag==0)
+    {
+        printf("Match not found\n");
+    }
+    else if(flag==1)
+    {
+        printf("Only one match found\n");
+    }
+}
+
+// transfer leaky component from one list to another
+void delete_(struct node** head,struct str** co)
+{
+    char v[20];
+    printf("Enter the leaky component to transfer to another list: ");
+    scanf("%s",v);
+    if(*head==NULL)
+    {
+        printf("No element is present\n");
+    }
+    else
+    {
+        struct node* p=*head;
+        while(p!=NULL)
+        {
+            if(strcmp(p->name,v)==0)
+            {
+                break;
+            }
+            else
+            {
+                p=p->nxt;
+            }
+        }
+
+        struct str* temp;
+        temp=(struct str*)malloc(sizeof(struct str));
+        strcpy(temp->name,p->name);
+        temp->next=NULL;
+        temp->prev=NULL;
+
+        // add to doubly linked list
+        if(*co==NULL)
+        {
+            *co=temp;
+        }
+        else
+        {
+            struct str* temp2=*co;
+            while(temp2->next!=NULL)
+            {
+                temp2=temp2->next;
+            }
+            temp2->next=temp;
+            temp->prev=temp2;
+        }
+
+        // delete from singly linked list
+        struct node* temp1;
+        temp1=p;
+        if(*head==p)
+        {
+            *head=(*head)->nxt;
+        }
+        else
+        {
+            while(p->nxt->nxt!=NULL)
+            {
+                p=p->nxt;
+            }
+            p->nxt=NULL;
+        }
+        free(temp1);//freeing the memory
+    }
+}
+
+// display doubly linked list in both directions
+void traverse(struct str* co)
+{
+    struct str* p=co;
+    printf("Traversing:\n");
+    while(p!=NULL)//Traversing forward 
+    {
+        printf("%s->",p->name);
+        if(p->next==NULL)
+        {
+            break;
+        }
+        p=p->next;
+    } 
+    printf("NULL\n");
+    struct str* temp=co;
+    while(p!=NULL)//Traversing backward
+    {
+        printf("%s->",p->name);
+        p=p->prev;
+    }
+    printf("NULL\n");
+}
+
+// add nodes to circular linked list for priority fixes
+void circular(struct cstr** pu)
+{
+    char k[20],x[20];
+    int flag=0;
+    printf("Enter streams which need priority fixes:\n");
+    scanf("%s %s",k,x);
+    for(int i=0;i<max_;i++)
+    {
+        if(strcmp(name1[i],k)==0||strcmp(name1[i],x)==0)
+        {
+            struct cstr* new_;
+            new_=(struct cstr*)malloc(sizeof(struct cstr));
+            strcpy(new_->name,name1[i]);
+            new_->ptr=NULL;
+            struct cstr* temp=*pu;
+            if(*pu==NULL)//when no element is present in CLL
+            {
+                *pu=new_;
+                new_->ptr=*pu;
+            }
+            else
+            {
+                while(temp->ptr!=*pu)
+                {
+                    temp=temp->ptr;
+                }
+                temp->ptr=new_;
+                new_->ptr=*pu;
+            }
+            flag++;
+        }
+    }
+    if(flag==0)
+    {
+        printf("Match not found\n");
+    }
+    else if(flag==1)
+    {
+        printf("Only one match found\n");
+    }
+}
+
+// traverse circular list partially
+void ctraverse(struct cstr* pu)
+{
+    int count=0;
+    struct cstr* p=pu;
+  
+    do {
+        printf("%s -> ", p->name);
+        p = p->ptr;
+
+        if (p == pu)  // completed one round
+            count++;
+
+    } while (count < 2);
+    printf("\n");
+}
+
+// main function
+void main()
+{
+    int ch,n,x;
+    char name[30][max_];
+    char name2[20][max_];
+    int p;
+    struct node* head=NULL;//declaration of head for single,double,circular linked list
+    struct str* co=NULL;
+    struct cstr* pu=NULL;
+
+    printf("choice:\n 1.Water request system\n 2.water usage log\n 3.Leaky component tracker\n 4.Priority Fixes\n");
+    while(1)
+    {    
+        printf("Enter your choice: ");
+        scanf("%d",&ch);
+        
+        if(ch==5)
+        {
+            printf("exiting..");
+            break;
+        }
+        else
+        {
+            switch(ch)
+            {
+               case 1:
+               {
+                  // get stream names and drought alearts
+                  printf("Enter drought alerts : ");
+                  for(int i=0;i<max_;i++)
+                  {
+                     scanf("%s",name[i]);
+                     enqueue(name[i]);
+                  }
+
+                  // store drought alert names
+                  for(int i=0;i<max_;i++)
+                  {
+                     strcpy(name1[i],queue[i]);
+                  }
+
+                  // dequeue by priority and push to stack
+                  for(int i=0;i<max_;i++)
+                  {
+                     push(dequeue());
+                  }
+
+                  // pop and print stack
+                  for(int i=0;i<max_;i++)
+                  {
+                     pop();
+                  }
+    
+            }
+            break;
+
+
+              case 2:
+              {
+                  printf("Enter number of logging usages(with extra logging and without): ");
+                  scanf("%d",&x);//for having extra logging usages
+                  printf("enter the size of water log : ");
+                  scanf("%d",&n);//for having extra logging usages
+
+                  printf("Enter logging usages: ");
+                  for(int i=0;i<x;i++)
+                  {
+                      scanf("%s",name2[i]);
+                      waterusage_(name2,i,n);
+                  }
+                  printf("Current logging usages:\n");//for printing logging usages
+                  for(int i=0;i<n;i++)
+                  {
+                     printf("%s\n",waterusage[i]);
+                  }
+                
+             }
+             break;
+
+             case 3:
+             {
+                // handle leaky components
+                printf("leaky components:\n ");
+                insert(&head);
+                delete_(&head,&co);
+                traverse(co);
+                
+             }
+             break;
+
+             case 4:
+             {
+                // handle priority fixes
+                printf("priority fixes:\n ");
+                circular(&pu);//circular linked list
+                ctraverse(pu);//traversing two times
+                
+             }
+             break;
+             
+             default : printf("please enter valid choice!");
+
+            }
+        }
+    }
+}
